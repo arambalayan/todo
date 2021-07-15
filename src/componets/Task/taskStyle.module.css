@@ -1,0 +1,11 @@
+.task{
+    margin: 10px auto; 
+ } 
+
+.actionButton{
+    margin: 5px;
+}
+
+.selected{
+    border: 1px solid #f00 !important;
+}
