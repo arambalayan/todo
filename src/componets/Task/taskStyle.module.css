@@ -9,3 +9,6 @@
 .selected{
     border: 1px solid #f00 !important;
 }
+.date{
+    font-size: 14px;
+}

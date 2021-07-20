@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
-import { InputGroup, FormControl, Button } from 'react-bootstrap';
+import { FormControl, Button, Modal } from 'react-bootstrap';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import styles from './addTaskStyle.module.css';
 import PropTypes from 'prop-types';
 
 export default class AddTask extends Component {
 
     state = {
-        inputValue: ''
+        title: '',
+        description: '',
+        date: new Date()
     }
 
     handleKeyDown = (event) => {
@@ -15,54 +19,89 @@ export default class AddTask extends Component {
         }
     };
 
-    handleInputChange = (event) => {
+
+    //variant 1
+    // handleChange = (event, name) => {
+    //     this.setState({
+    //         [name]: event.target.value
+    //     });
+    // };
+
+    //variant 2
+    handleChange = (event) => {
+        const { name, value } = event.target;
         this.setState({
-            inputValue: event.target.value
-        })
+            [name]: value
+        });
     };
 
+    handleDateChange = (date) => {
+        this.setState({
+            date
+        });
+    }
+
     addTasks = () => {
-        const { inputValue } = this.state;
-        if (!inputValue) {
+        const { title, description, date } = this.state;
+        if (!title) {
             return;
         }
-
-        this.props.onAdd(inputValue)
-        
-        this.setState({
-            inputValue: ''
-        })
+        const tasks = {
+            // title: title,
+            // description: description
+            title,
+            description,
+            date: date.toISOString().slice(0, 10)
+        }
+        this.props.onAdd(tasks)
     };
 
     render() {
-        const { inputValue } = this.state;
-        const {disabled} = this.props
-        return (
-            <InputGroup className={styles.input}>
-                <FormControl
-                    placeholder="Input new task"
-                    aria-label="Input new task"
-                    aria-describedby="basic-addon2"
-                    onChange={this.handleInputChange}
-                    onKeyDown={this.handleKeyDown}
-                    value={inputValue}
-                    disabled={disabled}
+        const { onCLose } = this.props
 
-                />
-                <InputGroup.Append>
-                    <Button
-                        variant="outline-primary"
-                        onClick={this.addTasks}
-                        disabled={disabled}
-                    >Add
+        return (
+            <Modal
+                show={true}
+                onHide={onCLose}
+                centered>
+                <Modal.Header>
+                    <Modal.Title>Add new task</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <FormControl
+                        placeholder="Title"
+                        name="title"
+                        // onChange={(event) => this.handleChange(event, 'title')}
+                        onChange={this.handleChange}
+                        onKeyDown={this.handleKeyDown}
+                    />
+                    <textarea
+                        rows="4"
+                        className={styles.description}
+                        placeholder="Description"
+                        name="description"
+                        // onChange={(event) => this.handleChange(event, 'description')}
+                        onChange={this.handleChange}
+                    ></textarea>
+                    <DatePicker
+                        selected={this.state.date}
+                        minDate={new Date()}
+                        onChange={this.handleDateChange} />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={this.addTasks}>
+                        Add
                     </Button>
-                </InputGroup.Append>
-            </InputGroup>
+                    <Button variant="secondary" onClick={onCLose}>
+                        Cancel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         )
     }
 }
 
 AddTask.propTypes = {
-    disabled: PropTypes.bool,
+    onClose: PropTypes.func.isRequired,
     onAdd: PropTypes.func.isRequired
 }

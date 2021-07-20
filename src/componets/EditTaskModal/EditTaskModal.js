@@ -1,29 +1,34 @@
 import React, { Component } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { FormControl, Modal, Button } from 'react-bootstrap';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import PropTypes from 'prop-types';
 import styles from './EditTaskModal.module.css';
 
 export default class EditTaskModal extends Component {
     constructor(props) {
         super(props);
+        const {date} = props.data;
         this.state = {
-            ...props.data
+            ...props.data,
+            date: date ? new Date(date): new Date()
         };
     }
 
     handleChange = (event) => {
+        const { name, value } = event.target;
         this.setState({
-            text: event.target.value
+            [name]: value
         });
     };
 
     handleSave = () => {
-        const { text } = this.state;
-        if (!text) {
+        const { title, date } = this.state;
+        if (!title) {
             return;
         }
-        this.props.onSave(this.state)
-
+        const editedTask = {...this.state, date: date.toISOString().slice(0, 10)};
+        this.props.onSave(editedTask);
     };
 
     handleKeyDown = (event) => {
@@ -32,32 +37,52 @@ export default class EditTaskModal extends Component {
         }
     };
 
+    handleDateChange = (date) => {
+        this.setState({
+            date
+        });
+    }
+
     render() {
         const { props } = this;
-        const { text } = this.state
+        const { title, description, date } = this.state;
+
         return (
             <Modal
-                onKeyUp={this.handleKeyDown}
                 show={true}
                 onHide={props.onClose}
                 centered>
                 <Modal.Header>
-                    <Modal.Title>Edith tasks</Modal.Title>
+                    <Modal.Title>Edit task</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <input
-                        type="text"
-                        className={styles.taskInput}
-                        value={text}
+                    <FormControl
+                        placeholder="Title"
+                        name="title"
+                        value={title}
                         onChange={this.handleChange}
+                        onKeyDown={this.handleKeyDown}
                     />
+                    <textarea
+                        rows="4"
+                        className={styles.description}
+                        placeholder="Description"
+                        name="description"
+                        value={description}
+                        onChange={this.handleChange}
+                    ></textarea>
+                    <DatePicker
+                        selected={date}
+                        onChange={this.handleDateChange} 
+                        minDate={new Date()}
+                        />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" onClick={this.handleSave} >
+                    <Button variant="primary" onClick={this.handleSave}>
                         Save
                     </Button>
                     <Button variant="secondary" onClick={props.onClose}>
-                        Close
+                        Cancel
                     </Button>
                 </Modal.Footer>
             </Modal>
