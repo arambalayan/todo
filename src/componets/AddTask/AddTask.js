@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { FormControl, Button, Modal } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -6,12 +6,17 @@ import styles from './addTaskStyle.module.css';
 import PropTypes from 'prop-types';
 
 export default class AddTask extends Component {
-
-    state = {
-        title: '',
-        description: '',
-        date: new Date()
+    constructor(props) {
+        super(props);
+        this.state = {
+            title: '',
+            description: '',
+            date: new Date()
+        }
+        this.titleRef = createRef(null);
     }
+
+    
 
     handleKeyDown = (event) => {
         if (event.key === 'Enter') {
@@ -56,6 +61,10 @@ export default class AddTask extends Component {
         this.props.onAdd(tasks)
     };
 
+    componentDidMount = () =>{
+        this.titleRef.current.focus()
+    }
+
     render() {
         const { onCLose } = this.props
 
@@ -74,6 +83,7 @@ export default class AddTask extends Component {
                         // onChange={(event) => this.handleChange(event, 'title')}
                         onChange={this.handleChange}
                         onKeyDown={this.handleKeyDown}
+                        ref = {this.titleRef}  
                     />
                     <textarea
                         rows="4"
