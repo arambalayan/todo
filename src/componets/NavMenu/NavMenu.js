@@ -7,32 +7,32 @@ export default function NavMenu() {
     return (
         <Navbar bg="light" expand="lg">
             <Container>
-                <Navbar.Brand href="#home">ToDo</Navbar.Brand>
+                <Navbar.Brand href="/">ToDo</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
-                        <NavLink to='/' 
-                        exact 
-                        activeClassName={styles.activePage}
-                        className={styles.navLink}
+                        <NavLink to='/'
+                            exact
+                            activeClassName={styles.activePage}
+                            className={styles.navLink}
                         >
-                        Home
+                            Home
                         </NavLink>
-                        <NavLink 
-                        to='/about' 
-                        exact 
-                        activeClassName={styles.activePage}
-                        className={styles.navLink}
+                        <NavLink
+                            to='/about'
+                            exact
+                            activeClassName={styles.activePage}
+                            className={styles.navLink}
                         >
-                        About
+                            About
                         </NavLink>
-                        <NavLink 
-                        to='/contact' 
-                        exact 
-                        className={styles.navLink}
-                        activeClassName={styles.activePage}
+                        <NavLink
+                            to='/contact'
+                            exact
+                            className={styles.navLink}
+                            activeClassName={styles.activePage}
                         >
-                        Contact
+                            Contact
                         </NavLink>
                     </Nav>
                 </Navbar.Collapse>

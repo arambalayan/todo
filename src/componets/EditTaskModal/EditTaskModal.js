@@ -4,14 +4,16 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import PropTypes from 'prop-types';
 import styles from './EditTaskModal.module.css';
+import { connect } from 'react-redux';
+import { editTask } from '../../store/actions';
 
-export default class EditTaskModal extends Component {
+class EditTaskModal extends Component {
     constructor(props) {
         super(props);
-        const {date} = props.data;
+        const { date } = props.data;
         this.state = {
             ...props.data,
-            date: date ? new Date(date): new Date()
+            date: date ? new Date(date) : new Date()
         };
         this.titleRef = createRef(null);
     }
@@ -28,8 +30,11 @@ export default class EditTaskModal extends Component {
         if (!title) {
             return;
         }
-        const editedTask = {...this.state, date: date.toISOString().slice(0, 10)};
-        this.props.onSave(editedTask);
+        const editedTask = {
+            ...this.state,
+            date: date.toISOString().slice(0, 10)
+        };
+        this.props.editTask(editedTask, this.props.from);
     };
 
     handleKeyDown = (event) => {
@@ -44,7 +49,7 @@ export default class EditTaskModal extends Component {
         });
     }
 
-    componentDidMount = () =>{
+    componentDidMount = () => {
         this.titleRef.current.focus()
     }
 
@@ -67,7 +72,7 @@ export default class EditTaskModal extends Component {
                         value={title}
                         onChange={this.handleChange}
                         onKeyDown={this.handleKeyDown}
-                        ref = {this.titleRef}
+                        ref={this.titleRef}
                     />
                     <textarea
                         rows="4"
@@ -79,9 +84,9 @@ export default class EditTaskModal extends Component {
                     ></textarea>
                     <DatePicker
                         selected={date}
-                        onChange={this.handleDateChange} 
+                        onChange={this.handleDateChange}
                         minDate={new Date()}
-                        />
+                    />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={this.handleSave}>
@@ -98,6 +103,11 @@ export default class EditTaskModal extends Component {
 
 EditTaskModal.propTypes = {
     data: PropTypes.object.isRequired,
-    onSave: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
 }
+
+const mapDispatchToProps = {
+    editTask
+}
+
+export default connect(null, mapDispatchToProps)(EditTaskModal)

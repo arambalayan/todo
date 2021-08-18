@@ -4,8 +4,10 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import styles from './addTaskStyle.module.css';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { addTasks } from '../../store/actions';
 
-export default class AddTask extends Component {
+class AddTask extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -16,23 +18,12 @@ export default class AddTask extends Component {
         this.titleRef = createRef(null);
     }
 
-    
-
     handleKeyDown = (event) => {
         if (event.key === 'Enter') {
             this.addTasks();
         }
     };
 
-
-    //variant 1
-    // handleChange = (event, name) => {
-    //     this.setState({
-    //         [name]: event.target.value
-    //     });
-    // };
-
-    //variant 2
     handleChange = (event) => {
         const { name, value } = event.target;
         this.setState({
@@ -52,16 +43,15 @@ export default class AddTask extends Component {
             return;
         }
         const tasks = {
-            // title: title,
-            // description: description
             title,
             description,
             date: date.toISOString().slice(0, 10)
         }
-        this.props.onAdd(tasks)
+        
+        this.props.addTasks(tasks)
     };
 
-    componentDidMount = () =>{
+    componentDidMount = () => {
         this.titleRef.current.focus()
     }
 
@@ -80,17 +70,15 @@ export default class AddTask extends Component {
                     <FormControl
                         placeholder="Title"
                         name="title"
-                        // onChange={(event) => this.handleChange(event, 'title')}
                         onChange={this.handleChange}
                         onKeyDown={this.handleKeyDown}
-                        ref = {this.titleRef}  
+                        ref={this.titleRef}
                     />
                     <textarea
                         rows="4"
                         className={styles.description}
                         placeholder="Description"
                         name="description"
-                        // onChange={(event) => this.handleChange(event, 'description')}
                         onChange={this.handleChange}
                     ></textarea>
                     <DatePicker
@@ -113,5 +101,10 @@ export default class AddTask extends Component {
 
 AddTask.propTypes = {
     onClose: PropTypes.func.isRequired,
-    onAdd: PropTypes.func.isRequired
 }
+
+const mapDispatchToProps = {
+    addTasks
+}
+
+export default connect(null, mapDispatchToProps)(AddTask)

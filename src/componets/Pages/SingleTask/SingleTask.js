@@ -1,14 +1,15 @@
 import React, { PureComponent } from 'react';
 import { Container, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faEdit, faCheck, faHistory } from '@fortawesome/free-solid-svg-icons';
 import { formatDate } from '../../../helpers/utils';
 import EditTaskModal from '../../EditTaskModal/EditTaskModal';
-import Spinner from '../../Spinner/Spinner';
+import { connect } from 'react-redux';
+import { getSingleTask, removeTask, changeTaskStatus } from '../../../store/actions';
+import styles from './singleTaskStyle.module.css';
 
-export default class SingleTask extends PureComponent {
+class SingleTask extends PureComponent {
     state = {
-        task: null,
         openEditModal: false
     }
 
@@ -38,81 +39,73 @@ export default class SingleTask extends PureComponent {
         });
     }
 
-    saveTask = (editedTask) =>{ 
-        fetch("http://localhost:3001/task/" + editedTask._id, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(editedTask)
-        })
-            .then((res) => res.json())
-            .then(response => {
-                if (response.error) {
-                    throw response.error;
-                }
-                this.setState({
-                    task: response,
-                    openEditModal: false
-                });
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-    }
-
     componentDidMount() {
         const taskId = this.props.match.params.id;
-        fetch(`http://localhost:3001/task/${taskId}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        })
-            .then((res) => res.json())
-            .then(response => {
-                if (response.error) {
-                    throw response.error;
-                }
-                this.setState({
-                    task: response
-                });
-            })
-            .catch((error) => {
-                console.log(error);
-            })
+        this.props.getSingleTask(taskId);
     }
+
+    componentDidUpdate(prevProps) {
+        if (!prevProps.editTaskSuccess && this.props.editTaskSuccess) {
+            this.setState({
+                openEditModal: false
+            });
+        }
+        if (!prevProps.removeTaskSuccess && this.props.removeTaskSuccess) {
+            this.props.history.push('/');
+        }
+    }
+
     render() {
-        const { task, openEditModal } = this.state;
+        const { openEditModal } = this.state;
+        const { task } = this.props;
         return (
             <Container>
                 {!!task ?
                     <div>
                         <h2>{task.title}</h2>
                         <p>Description: {task.description}</p>
+                        <p> Status: {task.status}</p>
                         <p>Date: {formatDate(task.date)}</p>
                         <p>Created at: {formatDate(task.created_at)}</p>
+                        {
+                            task.status === "active" ?
+                                <Button
+                                    className={styles.actionButton}
+                                    variant="success"
+                                    onClick={() => this.props.changeTaskStatus(task._id, { status: 'done' }, 'single')}
+                                >
+                                    <FontAwesomeIcon icon={faCheck} />
+                                </Button> :
+                                <Button
+                                    className={styles.actionButton}
+                                    variant="warning"
+                                    onClick={() => this.props.changeTaskStatus(task._id, { status: 'active' }, 'single')}
+                                >
+                                    <FontAwesomeIcon icon={faHistory} />
+                                </Button>
+                        }
                         <Button
-                            variant="warning"
-                            // className={styles.actionButton}
+                            className={styles.actionButton}
+                            variant="primary"
                             onClick={this.toggleEdithModal}
                         >
                             <FontAwesomeIcon icon={faEdit} />
                         </Button>
                         <Button
+                            className={styles.actionButton}
                             variant="danger"
-                            // className={styles.actionButton}
-                            onClick={this.onRemove}
+                            onClick={() => this.props.removeTask(task._id, "single")}
                         >
                             <FontAwesomeIcon icon={faTrash} />
                         </Button>
                     </div> :
-                    <Spinner />
+                    <h3>No task found!!!</h3>
                 }
                 {
-                     openEditModal &&
+                    openEditModal &&
                     <EditTaskModal
                         data={task}
+                        from='single'
                         onSave={this.saveTask}
                         onClose={this.toggleEdithModal}
                     />
@@ -121,3 +114,19 @@ export default class SingleTask extends PureComponent {
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        task: state.task,
+        editTaskSuccess: state.editTaskSuccess,
+        removeTaskSuccess: state.removeTaskSuccess
+    };
+}
+
+const mapDispatchToProps = {
+    getSingleTask,
+    removeTask,
+    changeTaskStatus
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SingleTask)
